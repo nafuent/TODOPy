@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}
+{{ super() }}
+{{ code }}
+{% endblock %}
+
+{% block content %}
+
+{% if code == 400 %}
+    <h1>Lo sentimos no encontramos lo que buscas...</h1>
+{% else %}
+    <h1>Lo sentimos ocurrio un error interno....</h1>
+{% endif%}
+<p> {{ error }}</p>
+
+{% endblock %}
