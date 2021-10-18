@@ -1,24 +1,24 @@
-from flask import Flask, request,make_response,redirect,render_template,session,url_for
+from flask import  request,make_response,redirect,render_template,session,url_for
 from flask.helpers import flash
-from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm
-from wtforms.fields import StringField, PasswordField
-from wtforms.fields.simple import SubmitField
-from wtforms.validators import DataRequired
+
+import unittest
+
+from app import create_app
+from app.forms import LoginForm
+
+from app.firestore_service import get_users, get_todos
+
 
 # Initialitation
-app =Flask(__name__)
-booststrap = Bootstrap(app)
-
-app.config['SECRET_KEY']='SUPER SECRETO'
-
+app =create_app()
 
 todos =['Comparar cafe','Aprender Fask', 'Crear TODO app']
 
-class LoginForm(FlaskForm):
-    username = StringField('Nombre de usuario',validators=[DataRequired()])
-    password = PasswordField('Password',validators=[DataRequired()])
-    submit = SubmitField('Enviar')
+
+@app.cli.command()
+def test():
+    tests = unittest.TestLoader().discover('tests')
+    unittest.TextTestRunner().run(tests)
 
 
 # error handlers
@@ -39,26 +39,25 @@ def index():
     #response.set_cookie('user_ip',user_ip)
     return response
 
-@app.route('/hello',methods = ['GET','POST'])
+@app.route('/hello',methods = ['GET'])
 def hello():
     #user_ip=request.cookies.get('user_ip')
     user_ip = session.get('user_ip')
-    login_form = LoginForm()
+
     username=session.get('username')
 
     #contexto
     context = {
         'user_ip':user_ip,
-        'todos':todos,
-        'login_form':login_form,
+        'todos':get_todos(user_id=username),
+        #'login_form':login_form,
         'username':username
     }
 
-    if login_form.validate_on_submit():
-        username = login_form.username.data
-        session['username'] = username
-        flash('Nombre de usuario registrado con exito!')
-        return redirect(url_for('index'))
+    users = get_users()
+    for user in users:
+        print(user.id)
+        print(user.to_dict()['password'])
 
     return render_template('hello.html',**context)
 
