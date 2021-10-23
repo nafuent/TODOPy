@@ -1,5 +1,6 @@
 from flask import  request,make_response,redirect,render_template,session,url_for
 from flask.helpers import flash
+from flask_login import login_required,current_user
 
 import unittest
 
@@ -40,11 +41,13 @@ def index():
     return response
 
 @app.route('/hello',methods = ['GET'])
+@login_required
 def hello():
     #user_ip=request.cookies.get('user_ip')
     user_ip = session.get('user_ip')
 
-    username=session.get('username')
+    #username=session.get('username')
+    username=current_user.id
 
     #contexto
     context = {
@@ -54,10 +57,8 @@ def hello():
         'username':username
     }
 
-    users = get_users()
-    for user in users:
-        print(user.id)
-        print(user.to_dict()['password'])
+
+
 
     return render_template('hello.html',**context)
 
